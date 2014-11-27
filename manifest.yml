@@ -1,8 +1,8 @@
 ---
 applications:
-- name: ws
+- name: wscosmos
   memory: 256M
   instances: 1
-  host: wstest-${random-word}
+  host: wstest-cosmos
   domain: cfapps.io
   path: .

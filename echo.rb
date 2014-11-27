@@ -10,7 +10,6 @@ get '/' do
   else
     request.websocket do |ws|
       ws.onopen do
-        ws.send("Hello World!")
         settings.sockets << ws
       end
       ws.onmessage do |msg|
@@ -27,32 +26,40 @@ end
 __END__
 @@ index
 <html>
+  <head>
+    <link rel="icon" href="data:;base64,=">
+  </head>
   <body>
-     <h1>Simple Echo & Chat Server</h1>
+     <h1>Simple Echo and Chat Server</h1>
      <form id="form">
-       <input type="text" id="input" value="send a message"></input>
+       <input type="text" id="input" placeholder="send a message"></input>
      </form>
-     <div id="msgs"></div>
+     <div id="msgs" style="font-family: 'Courier New', 'monospace';"></div>
   </body>
 
   <script type="text/javascript">
     window.onload = function(){
       (function(){
         var show = function(el){
-          return function(msg){ el.innerHTML = msg + '<br />' + el.innerHTML; }
+
+          return function(msg){
+            var ts = new Date();
+            var ms = ts.getMilliseconds();
+            ms = ((ms<10)?"00": (ms<100)?"0": "") + ms;
+            el.innerHTML = ts.toLocaleString() + ':' + ms + ' ---- ' + msg + '<br />' + el.innerHTML;
+          }
         }(document.getElementById('msgs'));
 
         var ws       = new WebSocket('wss://' + window.location.host + window.location.pathname);
-        ws.onopen    = function()  { show('websocket opened'); };
-        ws.onclose   = function()  { show('websocket closed'); }
-        ws.onmessage = function(m) { show('websocket message: ' +  m.data); };
+        ws.onopen    = function()  { show("websocket opened"); };
+        ws.onclose   = function()  { show("websocket closed"); }
+        ws.onmessage = function(m) { show("websocket message: " +  m.data); };
 
         var sender = function(f){
           var input     = document.getElementById('input');
-          input.onclick = function(){ input.value = "" };
           f.onsubmit    = function(){
             ws.send(input.value);
-            input.value = "send a message";
+            input.value = "";
             return false;
           }
         }(document.getElementById('form'));
